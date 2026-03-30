@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Météo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌤️ Météo en Direct</h1>
+            <p>Découvrez la météo de votre ville</p>
+        </header>
+
+        <!-- Search Form -->
+        <div class="search-section">
+            <form method="POST" action="/meteo" class="search-form">
+                <input 
+                    type="text" 
+                    name="city" 
+                    placeholder="Entrez le nom d'une ville..." 
+                    class="search-input"
+                    {% if searched_city %}value="{{ searched_city }}"{% endif %}
+                    required
+                >
+                <button type="submit" class="search-btn">Rechercher</button>
+            </form>
+        </div>
+
+        <!-- Error Message -->
+        {% if error %}
+        <div class="error-message">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Current Weather -->
+        {% if city %}
+        <div class="current-weather-section">
+            <div class="weather-card current-weather">
+                <div class="weather-header">
+                    <h2>{{ city.name }}, {{ city.country }}</h2>
+                    <span class="weather-description">{{ city.description | capitalize }}</span>
+                </div>
+
+                <div class="weather-main">
+                    <div class="temperature-display">
+                        <img 
+                            src="https://openweathermap.org/img/wn/{{ city.icon }}@4x.png" 
+                            alt="{{ city.main }}"
+                            class="weather-icon-large"
+                        >
+                        <div class="temp-info">
+                            <span class="temperature">{{ city.temperature }}°C</span>
+                            <span class="feels-like">Ressenti: {{ city.feels_like }}°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weather-details">
+                    <div class="detail-item">
+                        <span class="detail-label">🌡️ Min/Max</span>
+                        <span class="detail-value">{{ city.temp_min }}° / {{ city.temp_max }}°</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">💧 Humidité</span>
+                        <span class="detail-value">{{ city.humidity }}%</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">💨 Vent</span>
+                        <span class="detail-value">{{ city.wind_speed }} m/s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">🔽 Pression</span>
+                        <span class="detail-value">{{ city.pressure }} hPa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5-Day Forecast -->
+        {% if forecast %}
+        <div class="forecast-section">
+            <h3>Prévisions 5 Jours</h3>
+            <div class="forecast-grid">
+                {% for day in forecast %}
+                <div class="forecast-card">
+                    <div class="forecast-date">{{ day.date }}</div>
+                    <img 
+                        src="https://openweathermap.org/img/wn/{{ day.icon }}@2x.png" 
+                        alt="{{ day.main }}"
+                        class="forecast-icon"
+                    >
+                    <div class="forecast-temp">
+                        <span class="temp-max">{{ day.temp_max }}°</span>
+                        <span class="temp-min">{{ day.temp_min }}°</span>
+                    </div>
+                    <div class="forecast-desc">{{ day.description | capitalize }}</div>
+                    <div class="forecast-details">
+                        <span>💧 {{ day.humidity }}%</span>
+                        <span>💨 {{ day.wind_speed }} m/s</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Données fournies par OpenWeatherMap</p>
+        </footer>
+    </div>
+</body>
+</html>

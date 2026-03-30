@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prix du Diesel - Recherche par Ville</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⛽ Prix du Diesel en France</h1>
+            <p class="subtitle">Trouvez les meilleurs prix du diesel près de chez vous</p>
+        </header>
+
+        <main>
+            <div class="search-section">
+                <form id="searchForm">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="villeInput" 
+                            placeholder="Entrez le nom d'une ville..."
+                            autocomplete="off"
+                        >
+                        <button type="submit">Rechercher</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="loadingSpinner" class="spinner hidden">
+                <div class="spinner-ring"></div>
+                <p>Recherche en cours...</p>
+            </div>
+
+            <div id="errorContainer" class="error hidden"></div>
+            
+            <div id="resultsContainer" class="results hidden">
+                <h2 id="resultsTitle"></h2>
+                <div class="results-wrapper">
+                    <div id="mapContainer" class="map-container"></div>
+                    <div id="stationsList" class="stations-list"></div>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <p>Entrez le nom d'une ville pour voir les prix du diesel</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Données provenant de l'API officielle des prix du carburant</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
