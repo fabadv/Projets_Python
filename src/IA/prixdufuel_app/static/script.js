@@ -59,49 +59,96 @@ document.addEventListener('DOMContentLoaded', function() {
             stationsList.appendChild(stationCard);
         });
 
-        // Initialiser la carte
-        initializeMap(stations);
-
+        // Afficher le conteneur de résultats
         resultsContainer.classList.remove('hidden');
         emptyState.classList.add('hidden');
+
+        // Initialiser la carte après que le DOM soit rendu
+        setTimeout(() => {
+            initializeMap(stations);
+        }, 100);
     }
 
     function initializeMap(stations) {
         const mapContainer = document.getElementById('mapContainer');
         
+        // Vérifier que le conteneur existe et est visible
+        if (!mapContainer) {
+            console.error('Map container not found');
+            return;
+        }
+
         // Détruire la carte existante si elle existe
         if (map) {
             map.remove();
             markers = [];
         }
 
-        // Créer une nouvelle carte
-        map = L.map(mapContainer).setView([48.8566, 2.3522], 12);
+        // Créer une nouvelle carte avec Leaflet
+        map = L.map(mapContainer, {
+            preferCanvas: true
+        }).setView([48.8566, 2.3522], 12);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+        // Invalider la taille pour s'assurer que Leaflet recalcule
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 100);
+
+        // Utiliser Stamen Toner Lite (gratuit, performant, sans problème CORS)
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19,
+            minZoom: 5,
+            crossOrigin: true
         }).addTo(map);
+
+        // Créer un groupe pour adapter la vue
+        const markerGroup = L.featureGroup();
 
         // Ajouter les marqueurs
         stations.forEach((station) => {
             if (station.latitude && station.longitude) {
-                const marker = L.marker([station.latitude, station.longitude], {
-                    title: station.nom
-                }).addTo(map);
+                try {
+                    // Créer une icône personnalisée
+                    const customIcon = L.icon({
+                        iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCAzMiA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTYgNDhjLTUgMC0xNi05LTE2LTMyQzAgNy4yIDcuMiAwIDE2IDAgYzguOCAwIDE2IDcuMiAxNiAxNiAwIDIzLTExIDMyLTE2IDMyeiIgZmlsbD0iI0ZGNkIzNSIvPjwvc3ZnPg==',
+                        iconSize: [32, 48],
+                        iconAnchor: [16, 48],
+                        popupAnchor: [0, -48],
+                        shadowSize: [41, 41],
+                        shadowAnchor: [13, 41]
+                    });
 
-                // Créer le contenu du popup
-                const popupContent = createPopupContent(station);
-                marker.bindPopup(popupContent);
+                    const marker = L.marker([station.latitude, station.longitude], {
+                        icon: customIcon,
+                        title: station.nom
+                    });
 
-                markers.push(marker);
+                    // Créer le popup
+                    const popupContent = createPopupContent(station);
+                    marker.bindPopup(popupContent);
+
+                    marker.addTo(map);
+                    markerGroup.addLayer(marker);
+                    markers.push(marker);
+                } catch (e) {
+                    console.error('Error creating marker:', e);
+                }
             }
         });
 
         // Adapter la vue à tous les marqueurs
         if (markers.length > 0) {
-            const group = new L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.1));
+            try {
+                const bounds = markerGroup.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16, duration: 800 });
+                }
+            } catch (e) {
+                console.error('Error fitting bounds:', e);
+            }
         }
     }
 

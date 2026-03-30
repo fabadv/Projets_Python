@@ -190,6 +190,41 @@ button:disabled {
 
 .map-container .leaflet-container {
     height: 100%;
+    border-radius: 12px;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+}
+
+.leaflet-popup-content {
+    font-family: inherit;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.map-popup {
+    font-size: 0.9rem;
+}
+
+.map-popup strong {
+    color: var(--primary-color);
+    font-size: 1rem;
+    display: block;
+}
+
+.map-popup small {
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 4px;
+}
+
+.map-popup hr {
+    margin: 8px 0;
+    border: none;
+    border-top: 1px solid var(--border-color);
 }
 
 .stations-list {
