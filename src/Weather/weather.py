@@ -3,14 +3,32 @@ import requests
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from vault_local import get_vault
 
-# Load environment variables
-load_dotenv()
+# Try to load from Vault, fall back to .env
+def get_api_key():
+    """Get API key from local Vault or environment variables"""
+    try:
+        vault = get_vault()
+        secret = vault.read_secret_version(path='weather/openweather')
+        api_key = secret['data']['data'].get('api_key')
+        if api_key:
+            print("✅ API key loaded from Vault")
+            return api_key
+    except Exception as e:
+        print(f"⚠️  Vault access failed ({str(e)}), falling back to .env")
+    
+    # Fall back to .env
+    load_dotenv()
+    api_key = os.getenv('OPENWEATHER_API_KEY', 'YOUR_API_KEY_HERE')
+    if api_key != 'YOUR_API_KEY_HERE':
+        print("✅ API key loaded from .env")
+    return api_key
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # OpenWeatherMap API configuration
-OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'YOUR_API_KEY_HERE')
+OPENWEATHER_API_KEY = get_api_key()
 OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5'
 
 # Units: metric for Celsius
